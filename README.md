@@ -1,73 +1,82 @@
-# MCP Server Discord Webhook
+# Claude MCP Discord Webhook
 
-## 소개
-이 저장소는 서버 이벤트를 Discord 채널로 전송하는 Webhook 기능을 제공합니다.
+## 📌 개요
+이 모듈은 Claude MCP 서버의 이벤트를 실시간으로 Discord 채널에 알림으로 전송하는 기능을 제공합니다.
 
-## 기능
-- 서버 이벤트를 Discord 채널로 실시간 알림
-- 커스터마이징 가능한 메시지 포맷
-- 간편한 설정 방법
+## 🚀 주요 기능
+- Claude MCP 서버 이벤트의 실시간 Discord 알림
+- 맞춤형 이벤트 메시지 지원
+- 간편한 설정 및 통합
 
-## 설치 및 설정
+## 🔧 Claude MCP 설정 방법
 
-### 필요 조건
-- Node.js (버전 14 이상)
-- Discord 서버의 Webhook URL
-
-### 설치 방법
-1. 저장소 클론
-```bash
-git clone https://github.com/shehdrbs123/mcp-server-discord-webhook.git
-cd mcp-server-discord-webhook
-```
-
-2. 종속성 설치
-```bash
-npm install
-```
-
-### 설정 파일 구성
-프로젝트 루트에 `config.json` 파일을 생성하고 다음과 같이 설정하세요:
+### 1. 환경 설정
+`claude_desktop_config.json` 파일에 다음과 같이 설정:
 
 ```json
 {
-  "discordWebhookUrl": "YOUR_DISCORD_WEBHOOK_URL_HERE",
-  "events": [
-    "serverStart",
-    "serverStop",
-    "playerJoin",
-    "playerLeave"
-  ]
+  "mcpServers": {
+    "discordWebhook": {
+      "type": "webhook",
+      "url": "YOUR_DISCORD_WEBHOOK_URL",
+      "events": [
+        "serverStart",
+        "serverStop",
+        "modelInteraction",
+        "errorLog"
+      ]
+    }
+  }
 }
 ```
 
-### Webhook URL 얻는 방법
-1. Discord 서버의 채널 설정으로 이동
-2. '통합' 또는 'Webhooks' 섹션 선택
-3. '새 Webhook 생성' 클릭
-4. Webhook URL 복사
+### 2. Webhook URL 준비
+1. Discord 서버의 채널 설정 > 통합
+2. 웹훅 생성 > URL 복사
 
-### 실행 방법
-```bash
-npm start
+### 3. 지원되는 이벤트 유형
+- `serverStart`: MCP 서버 시작 알림
+- `serverStop`: MCP 서버 중지 알림
+- `modelInteraction`: Claude 모델 상호작용 로그
+- `errorLog`: 시스템 오류 및 예외 사항
+
+## 📡 고급 설정
+
+### 이벤트 필터링
+특정 이벤트만 알림 받도록 설정 가능:
+
+```json
+"events": [
+  "modelInteraction",
+  "errorLog"
+]
 ```
 
-## 고급 설정
-- 특정 이벤트만 알림 받기
-- 맞춤형 메시지 템플릿 지정
-- 다중 Webhook 지원
+### 메시지 커스터마이징
+`messageTemplate` 속성으로 알림 메시지 형식 지정:
 
-## 트러블슈팅
-- Webhook URL이 올바른지 확인
+```json
+{
+  "mcpServers": {
+    "discordWebhook": {
+      "messageTemplate": {
+        "modelInteraction": "New interaction: {model} | Tokens: {tokenCount}"
+      }
+    }
+  }
+}
+```
+
+## 🛠 트러블슈팅
+- Webhook URL 유효성 확인
 - 네트워크 방화벽 설정 점검
-- Node.js 버전 호환성 확인
+- 알림 수신 실패 시 로그 확인
 
-## 기여 방법
-1. 포크(Fork) 생성
-2. 기능 브랜치 생성 (`git checkout -b feature/AmazingFeature`)
-3. 변경사항 커밋 (`git commit -m 'Add some AmazingFeature'`)
-4. 브랜치에 푸시 (`git push origin feature/AmazingFeature`)
-5. 풀 리퀘스트 열기
+## 🤝 기여 방법
+1. 이슈 제기
+2. 포크 및 풀 리퀘스트
 
-## 라이선스
+## 📄 라이선스
 [라이선스 정보 추가]
+
+**✨ Made for Claude MCP**
