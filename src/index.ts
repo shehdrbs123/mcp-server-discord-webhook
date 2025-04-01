@@ -77,22 +77,42 @@ const sendMessageTool: Tool = {
 
 class DiscordWebhookClient {
   async sendMessage(args: SendMessageArgs): Promise<any> {
-    const payload = {
-      content: args.content,
-      username: args.username,
-      avatar_url: args.avatar_url,
-      embeds: args.embed ? [args.embed] : undefined,
-    };
+    try {
+      const payload = {
+        content: args.content,
+        username: args.username,
+        avatar_url: args.avatar_url,
+        embeds: args.embed ? [args.embed] : undefined,
+      };
 
-    const response = await fetch(args.webhook_url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+      const response = await fetch(args.webhook_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-    return response.json();
+      // 응답 상태 확인
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      // 성공적인 응답 처리
+      const result = await response.json();
+      return {
+        status: "success",
+        message: "Message sent successfully",
+        details: result
+      };
+    } catch (error) {
+      console.error("Discord webhook send error:", error);
+      return {
+        status: "error",
+        message: error instanceof Error ? error.message : String(error)
+      };
+    }
   }
 }
 
@@ -131,7 +151,10 @@ async function main() {
 
             const response = await discordClient.sendMessage(args);
             return {
-              content: [{ type: "text", text: JSON.stringify(response) }],
+              content: [{ 
+                type: "text", 
+                text: JSON.stringify(response, null, 2) 
+              }],
             };
           }
 
