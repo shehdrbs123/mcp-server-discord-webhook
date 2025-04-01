@@ -114,11 +114,14 @@ class DiscordWebhookClient {
       }
 
       // 성공적인 응답 처리
-      const result = await response.json();
+      // Discord webhook은 종종 204 No Content로 응답하므로 JSON 파싱 대신 상태 확인
       return {
         status: "success",
         message: "Message sent successfully",
-        details: result
+        details: {
+          statusCode: response.status,
+          statusText: response.statusText
+        }
       };
     } catch (error) {
       console.error("Discord webhook send error:", error);
