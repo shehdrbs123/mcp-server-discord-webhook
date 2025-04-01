@@ -82,7 +82,8 @@ class DiscordWebhookClient {
     // 환경변수에서 WEBHOOK_URL 읽기
     const url = process.env.WEBHOOK_URL;
     if (!url) {
-      throw new Error("WEBHOOK_URL environment variable is not set");
+      console.error("WEBHOOK_URL environment variable is not set");
+      process.exit(1);
     }
     this.webhookUrl = url;
   }
@@ -99,6 +100,8 @@ class DiscordWebhookClient {
         embeds: args.embed ? [args.embed] : undefined,
       };
 
+      console.error(`Sending payload: ${JSON.stringify(payload)}`);
+
       const response = await fetch(webhookUrl, {
         method: "POST",
         headers: {
@@ -110,12 +113,13 @@ class DiscordWebhookClient {
       // 응답 상태 확인
       if (!response.ok) {
         const errorText = await response.text();
+        console.error(`HTTP error! status: ${response.status}, message: ${errorText}`);
         throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
       // 성공적인 응답 처리
       // Discord webhook은 종종 204 No Content로 응답하므로 JSON 파싱 대신 상태 확인
-      return {
+      const result = {
         status: "success",
         message: "Message sent successfully",
         details: {
@@ -123,6 +127,9 @@ class DiscordWebhookClient {
           statusText: response.statusText
         }
       };
+
+      console.error(`Response result: ${JSON.stringify(result)}`);
+      return result;
     } catch (error) {
       console.error("Discord webhook send error:", error);
       return {
@@ -152,7 +159,7 @@ async function main() {
   server.setRequestHandler(
     CallToolRequestSchema,
     async (request: CallToolRequest) => {
-      console.error("Received CallToolRequest:", request);
+      console.error("Received CallToolRequest:", JSON.stringify(request));
       try {
         if (!request.params.arguments) {
           throw new Error("No arguments provided");
@@ -167,6 +174,7 @@ async function main() {
             }
 
             const response = await discordClient.sendMessage(args);
+            console.error(`Returning response: ${JSON.stringify(response)}`);
             return {
               content: [{ 
                 type: "text", 
