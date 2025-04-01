@@ -10,7 +10,7 @@ import {
 
 // Type definitions for tool arguments
 interface SendMessageArgs {
-  webhook_url: string;
+  webhook_url?: string;
   content: string;
   username?: string;
   avatar_url?: string;
@@ -35,7 +35,7 @@ const sendMessageTool: Tool = {
     properties: {
       webhook_url: {
         type: "string",
-        description: "The full Discord webhook URL",
+        description: "The full Discord webhook URL (optional if set in environment)",
       },
       content: {
         type: "string",
@@ -71,13 +71,27 @@ const sendMessageTool: Tool = {
         },
       },
     },
-    required: ["webhook_url", "content"],
+    required: ["content"],
   },
 };
 
 class DiscordWebhookClient {
+  private webhookUrl: string;
+
+  constructor() {
+    // 환경변수에서 WEBHOOK_URL 읽기
+    const url = process.env.WEBHOOK_URL;
+    if (!url) {
+      throw new Error("WEBHOOK_URL environment variable is not set");
+    }
+    this.webhookUrl = url;
+  }
+
   async sendMessage(args: SendMessageArgs): Promise<any> {
     try {
+      // 인자로 전달된 webhook_url이 있으면 그것을 사용, 없으면 환경변수의 URL 사용
+      const webhookUrl = args.webhook_url || this.webhookUrl;
+
       const payload = {
         content: args.content,
         username: args.username,
@@ -85,7 +99,7 @@ class DiscordWebhookClient {
         embeds: args.embed ? [args.embed] : undefined,
       };
 
-      const response = await fetch(args.webhook_url, {
+      const response = await fetch(webhookUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -145,8 +159,8 @@ async function main() {
           case "discord_send_message": {
             const args = request.params.arguments as unknown as SendMessageArgs;
             
-            if (!args.webhook_url || !args.content) {
-              throw new Error("Missing required arguments: webhook_url and content");
+            if (!args.content) {
+              throw new Error("Missing required argument: content");
             }
 
             const response = await discordClient.sendMessage(args);
