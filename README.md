@@ -1,32 +1,80 @@
-# Discord Webhook MCP Server
+# MCP Server Discord Webhook - GitHub Integration
 
-## Overview
-This Model Context Protocol (MCP) server enables sending messages to Discord channels via webhooks.
+## Setup Guide
 
-## Tools
+### Prerequisites
+- GitHub Account
+- Personal Access Token
+- Docker or NPX installed
 
-### `discord_send_message`
-Send a message to a Discord channel using a webhook.
+### Step 1: Create a Personal Access Token
 
-#### Input Parameters
-- `webhook_url` (string, required): The full Discord webhook URL
-- `content` (string, required): The message text to send
-- `username` (string, optional): Custom username for the webhook message
-- `avatar_url` (string, optional): Custom avatar URL for the webhook message
-- `embed` (object, optional): Embed object for rich message formatting
+1. Go to GitHub Settings > Developer settings > Personal access tokens
+2. Click on "Generate new token"
+3. Select the appropriate token scope:
+   - For private repositories: Select `repo` scope ("Full control of private repositories")
+   - For public repositories only: Select `public_repo` scope
 
-## Setup
+### Step 2: Configuration Options
 
-1. Create a Discord Webhook:
-   - Go to your Discord channel settings
-   - Create a webhook and copy its URL
+#### Option 1: Docker Configuration
 
-2. Environment Variables:
-   - No persistent environment variables required
+Add the following to your `claude_desktop_config.json`:
 
-## Usage
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "mcp/github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"
+      }
+    }
+  }
+}
+```
 
-Use the `discord_send_message` tool to send messages through a Discord webhook.
+#### Option 2: NPX Configuration
+
+Add the following to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"
+      }
+    }
+  }
+}
+```
+
+### Security Notes
+- Keep your Personal Access Token confidential
+- Do not commit the token to version control
+- Use environment variables or secure token management practices
+
+### Troubleshooting
+- Ensure the token has the correct permissions
+- Verify your network and GitHub access
+- Check Docker or NPX installation
+
+## Contributing
+Contributions are welcome! Please open an issue or submit a pull request.
 
 ## License
-MIT License
+[Add License Information]
