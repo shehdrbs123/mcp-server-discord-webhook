@@ -1,4 +1,4 @@
-name: MCP SDK v2 migration check
+name: MCP SDK v2 validation
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - chore/mcp-sdk-v2
 
 jobs:
-  migrate-check:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,30 +15,19 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Verify v1 characterization
-        run: |
-          npm install --ignore-scripts
-          npm test
+      - name: Install dependencies
+        run: npm install --ignore-scripts
 
-      - name: Run official v1-to-v2 codemod
-        run: npx --yes @modelcontextprotocol/codemod@latest v1-to-v2 .
+      - name: Build and run characterization regression
+        run: npm test
 
-      - name: Check codemod diagnostics
+      - name: Check migration leftovers
         run: |
-          if grep -R -n --exclude-dir=node_modules '@mcp-codemod-error' .; then
+          if grep -R -n '@mcp-codemod-error' src test package.json; then
             echo "codemod left action-required diagnostics"
             exit 1
           fi
-
-      - name: Verify v2 build and regression
-        run: |
-          rm -rf node_modules package-lock.json
-          npm install --ignore-scripts
-          npm test
-
-      - name: Show codemod diff
-        if: always()
-        run: |
-          rm -f package-lock.json
-          git status --short
-          git diff -- package.json src test
+          if grep -R -n '@modelcontextprotocol/sdk' src test package.json; then
+            echo "v1 SDK reference remains"
+            exit 1
+          fi
