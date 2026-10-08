@@ -1,12 +1,6 @@
 #!/usr/bin/env node
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import {
-  CallToolRequest,
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-  Tool,
-} from "@modelcontextprotocol/sdk/types.js";
+import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
+import { Server, CallToolRequest, Tool } from "@modelcontextprotocol/server";
 
 // Type definitions for tool arguments
 interface SendMessageArgs {
@@ -157,7 +151,7 @@ async function main() {
   const discordClient = new DiscordWebhookClient();
 
   server.setRequestHandler(
-    CallToolRequestSchema,
+    'tools/call',
     async (request: CallToolRequest) => {
       console.error("Received CallToolRequest:", JSON.stringify(request));
       try {
@@ -202,7 +196,7 @@ async function main() {
     },
   );
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => {
+  server.setRequestHandler('tools/list', async () => {
     console.error("Received ListToolsRequest");
     return {
       tools: [sendMessageTool],
